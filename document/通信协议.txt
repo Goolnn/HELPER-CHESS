@@ -1,0 +1,62 @@
+· 客户端
+  > 更新服务端名字
+    头部：unsigned int 0
+    内容：string 【更新的名字】
+
+    返回：
+        unsigned int 【更新结果】
+            0 - 操作成功
+            1 - 重名
+
+  > 获取玩家列表
+    头部：unsigned int 1
+
+    返回：
+        unsigned int 【玩家数量】
+  
+        string       【玩家名称】
+        byte         【队伍状态】
+
+        byte         【助屋人数】
+        byte         【随机人数】
+        byte         【敌组人数】
+
+  > 获取棋盘数据
+    头部：unsigned int 2
+
+    返回：
+        byte[48] 【棋盘】
+
+  > 更新准备状态
+    头部：unsigned int 3
+    内容：byte 【准备状态】
+
+    返回：
+         {玩家列表}
+  
+  > 更新棋盘
+    头部：unsigned int 6
+    内容：
+        byte[48] 【棋盘】
+
+
+
+ · 服务端
+   > 对局开始
+     头部：unsigned int 4
+     内容：
+         string 【助屋】
+         string 【敌组】
+
+         byte[48] 【棋盘】
+   
+   > 棋盘更新
+     头部：unsigned int 5
+     内容：
+         byte[48] 【棋盘】
+   
+   > 胜负判断
+     头部：unsigned int 7
+     内容：
+         byte   【胜方】
+         string 【名字】

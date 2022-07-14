@@ -74,7 +74,12 @@ void ClientThread::run(){
                     QString enemies=input.readString();
 
                     Bytes data=input.read(48);
+                    Bytes piecesStatus=input.read(12);
+                    Byte round=input.readByte();
+
                     window->viewer.chessboard.setData(data.getData());
+                    window->viewer.chessboard.setPiecesStatus(piecesStatus.getData());
+                    window->viewer.chessboard.setRound((Team)round);
 
                     window->setWindowTitle(QString("助屋棋 - %1 - %2（助屋） vs %3（敌组）").arg(player).arg(helpers).arg(enemies));
 
@@ -98,9 +103,12 @@ void ClientThread::run(){
 
                 }else if(head==5){
                     Bytes data=input.read(48);
-                    window->viewer.chessboard.setData(data.getData());
+                    Bytes piecesStatus=input.read(12);
+                    Byte round=input.readByte();
 
-                    window->viewer.changeRound();
+                    window->viewer.chessboard.setData(data.getData());
+                    window->viewer.chessboard.setPiecesStatus(piecesStatus.getData());
+                    window->viewer.chessboard.setRound((Team)round);
 
                 }else if(head==7){
                     Byte winnerTeam=input.readByte();

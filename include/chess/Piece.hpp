@@ -50,6 +50,13 @@ enum Piece{
 
 };
 
+enum PieceStatus{
+    PIECE_STATUS_WAITING=0x00,          //待命
+    PIECE_STATUS_ACTIVE =0x01,          //活动
+    PIECE_STATUS_OUT    =0x02           //出局
+
+};
+
 namespace PieceAttribute{
     const short SHIBETA[]           ={ 0, 0,-1, 0, 0,
                                        0, 5, 1, 5, 0,

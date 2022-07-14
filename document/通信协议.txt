@@ -38,6 +38,8 @@
     头部：unsigned int 6
     内容：
         byte[48] 【棋盘】
+        byte[12] 【棋子状态】
+        byte     【回合】
 
 
 
@@ -49,11 +51,15 @@
          string 【敌组】
 
          byte[48] 【棋盘】
+         byte[12] 【棋子状态】
+         byte     【回合】
    
-   > 棋盘更新
+   > 棋盘数据
      头部：unsigned int 5
      内容：
          byte[48] 【棋盘】
+         byte[12] 【棋子状态】
+         byte     【回合】
    
    > 胜负判断
      头部：unsigned int 7

@@ -9,6 +9,7 @@ class Chessboard{
         Team round;
         Team team;
 
+        Byte* piecesStatus;
         Byte* data;
     
     public:
@@ -20,12 +21,20 @@ class Chessboard{
 
         void setRound(Team team);
         void setTeam(Team team);
+
         void setPiece(Byte x,Byte y,Piece piece);
+
+        void setPieceStatus(Piece piece,PieceStatus pieceStatus);
+        void setPiecesStatus(Byte* piecesStatus);
         void setData(Byte* data);
 
         Team getRound();
         Team getTeam();
+
         Piece getPiece(Byte x,Byte y);
+
+        PieceStatus getPieceStatus(Piece piece);
+        void getPiecesStatus(Byte* piecesData);
         void getData(Byte* data);
 
         void clear();

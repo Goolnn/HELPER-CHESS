@@ -160,6 +160,9 @@ int main(int argc,char* argv[]){
                                     Byte data[48];
                                     chessboard.getData(data);
                                     gameStart.write((void*)data,48);
+                                    chessboard.getPiecesStatus(data);
+                                    gameStart.write((void*)data,12);
+                                    gameStart.writeByte((Byte)chessboard.getRound());
 
                                     Server::write(client,&gameStart);
 
@@ -324,6 +327,8 @@ int main(int argc,char* argv[]){
 
                                     }
 
+                                    chessboard.setRound(Team::HELPERS);
+
                                     //广播对局开始
                                     DataPack gameStart=DataPack();
                                     gameStart.writeUnsignedInt(4);
@@ -333,6 +338,9 @@ int main(int argc,char* argv[]){
                                     Byte data[48];
                                     chessboard.getData(data);
                                     gameStart.write((void*)data,48);
+                                    chessboard.getPiecesStatus(data);
+                                    gameStart.write((void*)data,12);
+                                    gameStart.writeByte((Byte)chessboard.getRound());
 
                                     Server::write(&clients,&gameStart);
 
@@ -344,13 +352,19 @@ int main(int argc,char* argv[]){
 
                         }else if(head==6){
                             Bytes data=dataPack.read(48);
+                            Bytes piecesStatus=dataPack.read(12);
+                            Byte round=dataPack.readByte();
 
                             chessboard.setData(data.getData());
+                            chessboard.setPiecesStatus(piecesStatus.getData());
+                            chessboard.setRound((Team)round);
 
                             //广播棋盘
                             DataPack chessdata=DataPack();
                             chessdata.writeUnsignedInt(5);
                             chessdata.write((void*)data.getData(),48);
+                            chessdata.write((void*)piecesStatus.getData(),12);
+                            chessdata.writeByte(round);
                             Server::write(&clients,&chessdata);
 
                             //胜负判断
@@ -384,6 +398,66 @@ int main(int argc,char* argv[]){
                                 player1->setStatus(0);
                                 player2->setStatus(0);
 
+                            }else{
+                                Byte piecesStatus[12];
+                                chessboard.getPiecesStatus(piecesStatus);
+
+                                bool helpersLost=true;
+
+                                for(int i=0;i<6;i++){
+                                    if(piecesStatus[i]!=2){
+                                        helpersLost=false;
+                                        break;
+
+                                    }
+
+                                }
+
+                                if(helpersLost){
+                                    DataPack winner=DataPack();
+                                    winner.writeUnsignedInt(7);
+                                    winner.writeByte(1);
+                                    winner.writeString(enemiesPlayer);
+                                    Server::write(&clients,&winner);
+
+                                    helpersPlayer="";
+                                    enemiesPlayer="";
+                                    start=false;
+                                    chessboard.clear();
+
+                                    player1->setStatus(0);
+                                    player2->setStatus(0);
+
+                                }
+
+                                bool enemiesLost=true;
+
+                                for(int i=6;i<12;i++){
+                                    if(piecesStatus[i]!=2){
+                                        enemiesLost=false;
+                                        break;
+
+                                    }
+
+                                }
+
+                                if(enemiesLost){
+                                    DataPack winner=DataPack();
+                                    winner.writeUnsignedInt(7);
+                                    winner.writeByte(0);
+                                    winner.writeString(helpersPlayer);
+                                    Server::write(&clients,&winner);
+
+                                    helpersPlayer="";
+                                    enemiesPlayer="";
+                                    start=false;
+                                    chessboard.clear();
+
+                                    player1->setStatus(0);
+                                    player2->setStatus(0);
+
+                                }
+
                             }
 
                         }
@@ -398,6 +472,39 @@ int main(int argc,char* argv[]){
                         clients.removeAt(i);
 
                     }else{
+                        //判断是否对局退出
+                        if(client->getName().compare(helpersPlayer)==0){
+                            DataPack winner=DataPack();
+                            winner.writeUnsignedInt(7);
+                            winner.writeByte(1);
+                            winner.writeString(enemiesPlayer);
+                            Server::write(&clients,&winner);
+
+                            helpersPlayer="";
+                            enemiesPlayer="";
+                            start=false;
+                            chessboard.clear();
+
+                            player1->setStatus(0);
+                            player2->setStatus(0);
+
+                        }else if(client->getName().compare(enemiesPlayer)==0){
+                            DataPack winner=DataPack();
+                            winner.writeUnsignedInt(7);
+                            winner.writeByte(0);
+                            winner.writeString(helpersPlayer);
+                            Server::write(&clients,&winner);
+
+                            helpersPlayer="";
+                            enemiesPlayer="";
+                            start=false;
+                            chessboard.clear();
+
+                            player1->setStatus(0);
+                            player2->setStatus(0);
+
+                        }
+
                         cout<<" · "<<client->getName().toStdString()<<" - 断开连接"<<endl;
 
                         clients.removeAt(i);

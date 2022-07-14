@@ -341,10 +341,16 @@ void Viewer::paintEvent(QPaintEvent* event){
         for(int y=0;y<2;y++){
             for(int x=0;x<3;x++){
                 if(this->chessboard.getTeam()==Team::HELPERS){
-                    p.drawImage(QPointF(this->chooserX+pieceSize*x,this->chooserY+pieceSize*y),this->icons[y*3+x]->scaled(pieceSize,pieceSize,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+                    if(this->chessboard.getPieceStatus((Piece)(y*3+x+1))==PIECE_STATUS_WAITING){
+                        p.drawImage(QPointF(this->chooserX+pieceSize*x,this->chooserY+pieceSize*y),this->icons[y*3+x]->scaled(pieceSize,pieceSize,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+
+                    }
 
                 }else if(this->chessboard.getTeam()==Team::ENEMIES){
-                    p.drawImage(QPointF(this->chooserX+pieceSize*x,this->chooserY+pieceSize*y),this->icons[6+y*3+x]->scaled(pieceSize,pieceSize,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+                    if(this->chessboard.getPieceStatus((Piece)(6+y*3+x+1))==PIECE_STATUS_WAITING){
+                        p.drawImage(QPointF(this->chooserX+pieceSize*x,this->chooserY+pieceSize*y),this->icons[6+y*3+x]->scaled(pieceSize,pieceSize,Qt::IgnoreAspectRatio,Qt::SmoothTransformation));
+
+                    }
                     
                 }
                 
@@ -453,22 +459,39 @@ void Viewer::mousePressEvent(QMouseEvent* event){
 
             if(this->characterChooser){
                 if(event->position().x()>this->visualX+(this->visualWidth-this->chooserWidth)/2&&event->position().y()>this->visualY+(this->visualHeight-this->chooserHeight)/2&&event->position().x()<this->visualX+(this->visualWidth-this->chooserWidth)/2+this->chooserWidth&&event->position().y()<this->visualY+(this->visualHeight-this->chooserHeight)/2+this->chooserHeight){
-                    this->chessboard.setPiece(this->focusX,this->focusY,(Piece)(this->chooserMouseY*3+this->chooserMouseX+(this->chessboard.getTeam()==Team::HELPERS?1:7)));
+                    PieceStatus status=this->chessboard.getPieceStatus((Piece)(this->chooserMouseY*3+this->chooserMouseX+(this->chessboard.getTeam()==Team::HELPERS?1:7)));
 
-                    this->characterChooser=false;
+                    if(status==PIECE_STATUS_WAITING){
+                        this->chessboard.setPieceStatus((Piece)(this->chooserMouseY*3+this->chooserMouseX+(this->chessboard.getTeam()==Team::HELPERS?1:7)),PIECE_STATUS_ACTIVE);
+                        this->chessboard.setPiece(this->focusX,this->focusY,(Piece)(this->chooserMouseY*3+this->chooserMouseX+(this->chessboard.getTeam()==Team::HELPERS?1:7)));
 
-                    this->focusX=-1;
-                    this->focusY=-1;
+                        this->characterChooser=false;
 
-                    // this->changeRound();
+                        this->focusX=-1;
+                        this->focusY=-1;
 
-                    //更新棋盘
-                    DataPack chessboard=DataPack();
-                    Byte data[48];
-                    this->chessboard.getData(data);
-                    chessboard.writeUnsignedInt(6);
-                    chessboard.write((void*)data,48);
-                    Client::write(&chessboard);
+                        this->chooserMouseX=-1;
+                        this->chooserMouseY=-1;
+
+                        this->changeRound();
+
+                        //更新棋盘
+                        DataPack chessboard=DataPack();
+                        Byte data[48];
+                        this->chessboard.getData(data);
+                        chessboard.writeUnsignedInt(6);
+                        chessboard.write((void*)data,48);
+                        this->chessboard.getPiecesStatus(data);
+                        chessboard.write((void*)data,12);
+                        chessboard.writeByte((Byte)this->chessboard.getRound());
+                        Client::write(&chessboard);
+
+                        printf("\n%d\n\n",(Byte)this->chessboard.getRound());
+
+                    }else{
+                        printf("%d\n",this->chooserMouseY*3+this->chooserMouseX+(this->chessboard.getTeam()==Team::HELPERS?1:7));
+                    
+                    }
 
                 }else{
                     this->characterChooser=false;
@@ -493,8 +516,13 @@ void Viewer::mousePressEvent(QMouseEvent* event){
                         QList<Location> locations=PieceTool::mapping(PieceTool::getAttribute(this->chessboard.getPiece(oldFocusX,oldFocusY)),&this->chessboard,oldFocusX,oldFocusY);
 
                         for(Location location:locations){
-                            if(location.getX()==this->focusX&&location.getY()==this->focusY){
+                            if(location.getX()==this->focusX&&location.getY()==this->focusY&&PieceTool::getTeam(this->chessboard.getPiece(oldFocusX,oldFocusY))==this->chessboard.getTeam()){
                                 Piece piece=this->chessboard.getPiece(oldFocusX,oldFocusY);
+
+                                if(this->chessboard.getPiece(this->focusX,this->focusY)!=PIECE_EMPTY){
+                                    this->chessboard.setPieceStatus(this->chessboard.getPiece(this->focusX,this->focusY),PIECE_STATUS_OUT);
+
+                                }
 
                                 this->chessboard.setPiece(oldFocusX,oldFocusY,PIECE_EMPTY);
                                 this->chessboard.setPiece(this->focusX,this->focusY,piece);
@@ -505,7 +533,7 @@ void Viewer::mousePressEvent(QMouseEvent* event){
                                 this->mouseX=-1;
                                 this->mouseY=-1;
 
-                                // this->changeRound();
+                                this->changeRound();
 
                                 //更新棋盘
                                 DataPack chessboard=DataPack();
@@ -513,7 +541,12 @@ void Viewer::mousePressEvent(QMouseEvent* event){
                                 this->chessboard.getData(data);
                                 chessboard.writeUnsignedInt(6);
                                 chessboard.write((void*)data,48);
+                                this->chessboard.getPiecesStatus(data);
+                                chessboard.write((void*)data,12);
+                                chessboard.writeByte((Byte)this->chessboard.getRound());
                                 Client::write(&chessboard);
+
+                                printf("\n%d\n\n",(Byte)this->chessboard.getRound());
 
                             }
 

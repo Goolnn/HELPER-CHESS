@@ -25,12 +25,14 @@ void ClientThread::run(){
                     unsigned int status=input.readUnsignedInt();
 
                     if(status==0){
-                        if(window->currentIndex()==0){
-                            QMetaObject::invokeMethod(window,"setCurrentIndex",Q_ARG(int,1));
+                        window->setWindowTitle(QString("助屋棋 - %1").arg(player));
 
-                            window->setWindowTitle(QString("助屋棋 - %1").arg(player));
+                        window->connect.setParent(nullptr);
 
-                        }
+                        window->splitter.setParent(window);
+                        window->splitter.setGeometry(QRect(window->VIEWER_OFFSET_X,window->VIEWER_OFFSET_Y,window->VIEWER_WIDTH,window->VIEWER_HEIGHT));
+
+                        QMetaObject::invokeMethod(&window->splitter,"show");
 
                     }
 

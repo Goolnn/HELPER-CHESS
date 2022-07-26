@@ -37,6 +37,8 @@ class Chessboard{
         void getPiecesStatus(Byte* piecesData);
         void getData(Byte* data);
 
+        void changeRound();
+
         void clear();
 
 };

@@ -32,8 +32,9 @@ SOURCES += src/window/Controller.cpp \
            src/HelperChess.cpp
 
 QT += core \
-      widgets
+      widgets \
+      svg
 
 CONFIG += console
 
-LIBS += -lwsock32
+LIBS += -lwsock32 -ldwmapi

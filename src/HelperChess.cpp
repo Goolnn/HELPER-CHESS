@@ -26,14 +26,13 @@ QString player;
  * 助屋棋 | Helper Chess
  */
 int main(int argc,char* argv[]){
+    QApplication application=QApplication(argc,argv);
+
     //客户端启动
     if(argc==1||(argc==2&&strcmp(argv[1],"-client")==0)){
-        QApplication application=QApplication(argc,argv);
         window=new Window();
 
         window->show();
-
-        return application.exec();
         
     //服务端启动
     }else if(argc==2&&strcmp(argv[1],"-server")==0){
@@ -550,5 +549,7 @@ int main(int argc,char* argv[]){
         }
 
     }
+
+    return application.exec();
 
 }

@@ -5,6 +5,7 @@
 
 using namespace std;
 
+//贝塞尔曲线
 BezierCurve::~BezierCurve(){
     for(int i=0;i<this->points.size();i++){
         delete this->points.at(i);

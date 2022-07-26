@@ -84,6 +84,17 @@ void Chessboard::getData(Byte* data){
 
 }
 
+void Chessboard::changeRound(){
+    if(this->getRound()==Team::ENEMIES){
+        this->setRound(Team::HELPERS);
+
+    }else if(this->getRound()==Team::HELPERS){
+        this->setRound(Team::ENEMIES);
+
+    }
+
+}
+
 void Chessboard::clear(){
     for(int i=0;i<48;i++){
         this->data[i]=0;

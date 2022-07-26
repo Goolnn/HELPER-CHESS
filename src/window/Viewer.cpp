@@ -459,9 +459,7 @@ void Viewer::mousePressEvent(QMouseEvent* event){
 
             if(this->characterChooser){
                 if(event->position().x()>this->visualX+(this->visualWidth-this->chooserWidth)/2&&event->position().y()>this->visualY+(this->visualHeight-this->chooserHeight)/2&&event->position().x()<this->visualX+(this->visualWidth-this->chooserWidth)/2+this->chooserWidth&&event->position().y()<this->visualY+(this->visualHeight-this->chooserHeight)/2+this->chooserHeight){
-                    PieceStatus status=this->chessboard.getPieceStatus((Piece)(this->chooserMouseY*3+this->chooserMouseX+(this->chessboard.getTeam()==Team::HELPERS?1:7)));
-
-                    if(status==PIECE_STATUS_WAITING){
+                    if(this->chessboard.getPieceStatus((Piece)(this->chooserMouseY*3+this->chooserMouseX+(this->chessboard.getTeam()==Team::HELPERS?1:7)))==PIECE_STATUS_WAITING){
                         this->chessboard.setPieceStatus((Piece)(this->chooserMouseY*3+this->chooserMouseX+(this->chessboard.getTeam()==Team::HELPERS?1:7)),PIECE_STATUS_ACTIVE);
                         this->chessboard.setPiece(this->focusX,this->focusY,(Piece)(this->chooserMouseY*3+this->chooserMouseX+(this->chessboard.getTeam()==Team::HELPERS?1:7)));
 
@@ -486,11 +484,6 @@ void Viewer::mousePressEvent(QMouseEvent* event){
                         chessboard.writeByte((Byte)this->chessboard.getRound());
                         Client::write(&chessboard);
 
-                        printf("\n%d\n\n",(Byte)this->chessboard.getRound());
-
-                    }else{
-                        printf("%d\n",this->chooserMouseY*3+this->chooserMouseX+(this->chessboard.getTeam()==Team::HELPERS?1:7));
-                    
                     }
 
                 }else{
@@ -563,7 +556,7 @@ void Viewer::mousePressEvent(QMouseEvent* event){
                             for(int i=0;i<list.size();i++){
                                 Location location=list.at(i);
 
-                                if(this->focusX==location.getX()&&this->focusY==location.getY()){
+                                if(this->focusX==location.getX()&&this->focusY==location.getY()&&this->chessboard.getRound()==this->chessboard.getTeam()){
                                     this->characterChooser=true;
 
                                     break;
@@ -583,7 +576,7 @@ void Viewer::mousePressEvent(QMouseEvent* event){
                             for(int i=0;i<list.size();i++){
                                 Location location=list.at(i);
 
-                                if(this->focusX==location.getX()&&this->focusY==location.getY()){
+                                if(this->focusX==location.getX()&&this->focusY==location.getY()&&this->chessboard.getRound()==this->chessboard.getTeam()){
                                     this->characterChooser=true;
 
                                     break;
